@@ -59,21 +59,19 @@ def concert_detail(request, id):
     pass
 
 
-def concert_attendee(request):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            concert_id = request.POST.get("concert_id")
-            attendee_status = request.POST.get("attendee_choice")
-            concert_attendee_object = ConcertAttending.objects.filter(
-                concert_id=concert_id, user=request.user).first()
-            if concert_attendee_object:
-                concert_attendee_object.attending = attendee_status
-                concert_attendee_object.save()
+def signup(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        try:
+            user = User.objects.filter(username=username).first()
+            if user:
+                return render(request, "signup.html", {"form": SignUpForm, "message": "user already exist"})
             else:
-                ConcertAttending.objects.create(concert_id=concert_id,
-                                                user=request.user,
-                                                attending=attendee_status)
-
-        return HttpResponseRedirect(reverse("concerts"))
-    else:
-        return HttpResponseRedirect(reverse("index"))
+                user = User.objects.create(
+                    username=username, password=make_password(password))
+                login(request, user)
+                return HttpResponseRedirect(reverse("index"))
+        except User.DoesNotExist:
+            return render(request, "signup.html", {"form": SignUpForm})
+    return render(request, "signup.html", {"form": SignUpForm})
