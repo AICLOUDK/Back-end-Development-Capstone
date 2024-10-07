@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 from . import views
 
-urlpatterns = [
+song = [
     re_path(r"^$", views.index, name="index"),
     path("", views.songs, name="songs"),
     path("", views.photos, name="photos"),
